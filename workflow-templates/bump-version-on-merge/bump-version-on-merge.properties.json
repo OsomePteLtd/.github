@@ -1,0 +1,5 @@
+{
+  "name": "Bump version on merge",
+  "description": "Bumps package version on each commit to master. You should choose this workflow for libraries hosted as NPM packages.",
+  "iconName": "bump-version-on-merge"
+}
