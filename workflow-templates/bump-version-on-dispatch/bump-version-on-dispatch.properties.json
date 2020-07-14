@@ -1,0 +1,5 @@
+{
+  "name": "Bump version on dispatch",
+  "description": "Use Slack bot to bump package version and trigger the deployment. Use this workflow in projects that are released often.",
+  "iconName": "bump-version-on-dispatch"
+}
