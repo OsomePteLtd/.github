@@ -1,0 +1,49 @@
+name: Install workflow
+on:
+  workflow_dispatch:
+    inputs:
+      repository:
+        description: 'Repository name'
+        required: true
+      workflow:
+        description: 'Workflow name'
+        required: true
+
+
+jobs:
+  install:
+    name: Install ${{ github.event.inputs.workflow }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/checkout@v2
+        with:
+          repository: OsomePteLtd/${{ github.event.inputs.repository }}
+          token: ${{ secrets.OSOME_BOT_TOKEN }}
+          path: tmp
+
+      - run: |
+          mkdir -p ./tmp/.github/workflows
+          cp ./workflow-templates/${{ github.event.inputs.workflow }}/${{ github.event.inputs.workflow }}.yml ./tmp/.github/workflows
+          cd ./tmp
+          git remote set-url origin https://osome-bot:${{ secrets.OSOME_BOT_TOKEN }}@github.com/OsomePteLtd/${{ github.event.inputs.repository }}.git
+          git config user.name "Osome Bot"
+          git config user.email "67785357+osome-bot@users.noreply.github.com"
+          git checkout -b workflow/${{ github.event.inputs.workflow }}
+          git add .github/workflows/${{ github.event.inputs.workflow }}.yml
+          git commit -m 'Add `${{ github.event.inputs.workflow }}` workflow'
+          git push origin workflow/${{ github.event.inputs.workflow }}
+
+      - uses: actions/github-script@v2
+        with:
+          github-token: ${{ secrets.OSOME_BOT_TOKEN }}
+          script: |
+            github.pulls.create({
+              base: 'master',
+              head: 'workflow/${{ github.event.inputs.workflow }}',
+              owner: 'OsomePteLtd',
+              repo: '${{ github.event.inputs.repository }}',
+              title: '🚦 Add `${{ github.event.inputs.workflow }}` workflow'
+            })
