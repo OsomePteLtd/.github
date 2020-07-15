@@ -6,6 +6,8 @@
 
 - :fist_left: [`bump-version-on-merge`](#fist_left-bump-version-on-merge)
 
+- :ledger: [`storybook`](#ledger-storybook)
+
 ### Adding workflows to public repositories
 
 In public repositories you can choose one of our workflow templates when creating a new workflow from the **Actions** tab:
@@ -25,12 +27,32 @@ To do it, open **[Actions](https://github.com/OsomePteLtd/.github/actions?query=
 
 ### :boxing_glove: `bump-version-on-dispatch`
 
+#### Features
+
 - Provides support for triggering package deployment with a **[Slack bot](https://github.com/OsomePteLtd/slack-bot)**.
 - Flexible releases, best fitted for packages that are under active development and/or released often.
-- Does not require any configuration but does require additional workflows that will run on any tagged push and will take care of actual deployment.
+
+#### Requirements
+
+- Requires additional workflows that will run on any tagged push and will take care of deployment.
 
 ### :fist_left: `bump-version-on-merge`
 
+#### Features
+
 - Provides support for triggering package deployment whenever a pull request is merged into a default branch.
 - A more strict approach to managing releases, best fitted for packages that are hosted on NPM or GitHub Package Registry.
-- Does not require any configuration but does require additional workflows that will run on any tagged push and will take care of actual deployment.
+
+#### Requirements
+
+- Requires additional workflows that will run on any tagged push and will take care of deployment.
+
+### - :ledger: `storybook`
+-
+
+### - :package: `deploy-to-npm`
+
+### - :package: `deploy-to-s3`
+
+- Provides support for deploying packages to an S3 bucket. 
+- Requires `DEPLOYMENT_ENVIRONMENT_URL` secret to be set to environment URL, with `{0}` masking the environment, e.g. `https://agent.{0}.osome.club/`.
