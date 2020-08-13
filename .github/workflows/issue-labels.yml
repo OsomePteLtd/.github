@@ -1,0 +1,29 @@
+name: Create issue labels
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: 'Repository name'
+        required: true
+
+jobs:
+  create-issue-labels:
+    name: Create issue label
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        data: ${{ fromJson('[{"name":"stage","color":"e6f1fa"},{"name":"test-1","color":"cce3f4"},{"name":"test-2","color":"b3d6ef"},{"name":"test-3","color":"99c8ea"},{"name":"test-4","color":"80bae5"},{"name":"test-5","color":"66acdf"},{"name":"test-6","color":"4d9eda"},{"name":"test-7","color":"3391d5"},{"name":"test-8","color":"1a83cf"},{"name":"test-9","color":"0075ca"}]') }}
+
+    steps:
+      - uses: actions/github-script@v2
+        with:
+          github-token: ${{ secrets.OSOME_BOT_TOKEN }}
+          script: |
+            github.issues.createLabel({
+              owner: 'OsomePteLtd',
+              repo: '${{ github.event.inputs.repo }}',
+              name: 'deployed to ${{ matrix.data.name }}',
+              color: '${{ matrix.data.color }}',
+            });
