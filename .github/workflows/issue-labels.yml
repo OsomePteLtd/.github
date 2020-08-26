@@ -21,6 +21,15 @@ jobs:
         with:
           github-token: ${{ secrets.OSOME_BOT_TOKEN }}
           script: |
+            github.issues.deleteLabel({
+              owner: 'OsomePteLtd',
+              repo: '${{ github.event.inputs.repo }}',
+              name: 'deployed to ${{ matrix.data.name }}',
+            }); 
+      - uses: actions/github-script@v2
+        with:
+          github-token: ${{ secrets.OSOME_BOT_TOKEN }}
+          script: |
             github.issues.createLabel({
               owner: 'OsomePteLtd',
               repo: '${{ github.event.inputs.repo }}',
