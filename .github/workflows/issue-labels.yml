@@ -25,7 +25,7 @@ jobs:
               owner: 'OsomePteLtd',
               repo: '${{ github.event.inputs.repo }}',
               name: 'deployed to ${{ matrix.data.name }}',
-            }); 
+            }).catch(() => null); 
       - uses: actions/github-script@v2
         with:
           github-token: ${{ secrets.OSOME_BOT_TOKEN }}
