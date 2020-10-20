@@ -1,0 +1,97 @@
+name: Migrate workflows
+
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Migration name'
+        required: true
+      search:
+        description: 'Escaped search string for RegExp constructor'
+        required: true
+      replace:
+        description: 'Replacement string'
+        required: true
+
+jobs:
+  list-repos:
+    runs-on: ubuntu-latest
+    outputs:
+      repos: ${{ steps.repos.outputs.repos }}
+    steps:
+      - uses: osomepteltd/actions/packages/for-each-repo@beta
+        with:
+          token: ${{ secrets.OSOME_BOT_TOKEN }}
+        id: repos
+
+  migrate:
+    needs: list-repos
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        data: ${{ fromJson(needs.list-repos.outputs.repos) }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: ${{ matrix.data.owner }}/${{ matrix.data.repo }}
+          token: ${{ secrets.OSOME_BOT_TOKEN }}
+          path: ${{ matrix.data.repo }}
+      - uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.OSOME_BOT_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const REGEXP = new RegExp('${{ github.event.inputs.search }}');
+
+            const dir = path.resolve(`./${{ matrix.data.repo }}/.github/workflows`);
+            const exists = fs.existsSync(path.resolve(dir));
+            let migrated = false;
+            if (exists) {
+              const workflows = fs.readdirSync(dir);
+              for (const workflow of workflows) {
+                const file = path.resolve(dir, workflow);
+                const contents = fs.readFileSync(file, 'utf-8');
+                const replacement = contents
+                  .split('\n')
+                  .map((line) => line.replace(REGEXP, '${{ github.event.inputs.replace }}'))
+                  .join('\n');
+                fs.writeFileSync(file, replacement);
+                if (!migrated && contents !== replacement) {
+                  migrated = true;
+                }
+              }
+            }
+
+            core.setOutput('migrated', JSON.stringify(migrated))
+        id: migration
+      - if: steps.migration.outputs.migrated == 'true'
+        run: |
+          cd $GITHUB_WORKSPACE/${{ matrix.data.repo }}
+          git status
+          git remote set-url origin https://osome-bot:${{ secrets.OSOME_BOT_TOKEN }}@github.com/${{ matrix.data.owner }}/${{ matrix.data.repo }}.git
+          git config user.name "Osome Bot"
+          git config user.email "67785357+osome-bot@users.noreply.github.com"
+          git checkout -b chore/migrate
+          git add .github
+          git commit -m 'chore: migrate `set-env` to `$GITHUB_ENV`'
+          git push origin chore/migrate
+      - if: steps.migration.outputs.migrated == 'true'
+        uses: actions/github-script@v2
+        with:
+          github-token: ${{ secrets.OSOME_BOT_TOKEN }}
+          script: |
+            const {data: {number}} = await github.pulls.create({
+              base: 'master',
+              head: 'chore/migrate',
+              owner: '${{ matrix.data.owner }}',
+              repo: '${{ matrix.data.repo }}',
+              title: 'chore: ${{ github.event.inputs.name }}'
+            });
+            await github.pulls.requestReviewers({
+              owner: '${{ matrix.data.owner }}',
+              repo: '${{ matrix.data.repo }}',
+              pull_number: number,
+              reviewers: ['${{ github.actor }}'],
+            });
