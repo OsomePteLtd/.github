@@ -1,0 +1,36 @@
+name: Bat-signal
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  bat-signal:
+    name: 'Light a bat-signal'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.OSOME_BOT_TOKEN }}
+          script: |
+            const {
+              repo: { owner, repo },
+              payload: { pull_request: { number: pull_number } },
+            } = github.context;
+
+            const { data: { state } } = await octokit.teams.getMembershipForUserInOrg({
+              org: 'OsomePteLtd',
+              username: github.context.actor,
+              team_slug: 'accounting',
+            });
+
+            if (state === 'active') {
+              github.context.payload.pull_request.number;
+              await octokit.pulls.requestReviewers({
+                pull_number,
+                team_reviewers: ['accounting'],
+                owner,
+                repo,
+              });
+            }
+
