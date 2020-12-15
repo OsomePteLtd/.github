@@ -6,7 +6,7 @@ on:
 jobs:
   # get-repos:
   #   name: Get repositories
-  #   runs-on: ubuntu-latest
+  #   runs-on: ubuntu-20.04
   #   outputs:
   #     repos: ${{ steps.repos.outputs.result }}
 
@@ -21,7 +21,7 @@ jobs:
 
   update-branch-protection:
     name: Update branch protection
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     # needs:
     #   - get-repos
