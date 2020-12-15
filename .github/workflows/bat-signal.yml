@@ -7,7 +7,7 @@ on:
 jobs:
   bat-signal:
     name: 'Light a bat-signal'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/github-script@v3
         with:

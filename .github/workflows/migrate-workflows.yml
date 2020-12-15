@@ -15,7 +15,7 @@ on:
 
 jobs:
   list-repos:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     outputs:
       repos: ${{ steps.repos.outputs.repos }}
     steps:
@@ -26,7 +26,7 @@ jobs:
 
   migrate:
     needs: list-repos
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
